@@ -1,176 +1,293 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-<title>💞 Melek İyi Ki Doğdun 💞</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Melek'in Ultimate Doğum Günü Oyunu 🎮💖</title>
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet">
-
 <style>
-    :root {
-        --main-color: 320;
-        --main-hue-color: hsl(var(--main-color), 85%, 60%);
-        --glow-color: hsl(var(--main-color), 95%, 75%);
-    }
+  :root{--bg1:#090018;--bg2:#2b0038;--accent1:#ff6b9a;--accent2:#ffb3e6}
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:Rubik,Inter,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial}
+  body{background:radial-gradient(circle at 20% 20%,#1b0030 0%,var(--bg1) 30%,var(--bg2) 100%);color:#fff;overflow:hidden}
+  #game-wrap{position:relative;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center}
 
-    html, body {
-        margin: 0;
-        overflow: hidden;
-        background: radial-gradient(circle at center, #160016 30%, #000 100%);
-        height: 100vh;
-        font-family: 'Rubik', sans-serif;
-        touch-action: none;
-    }
+  /* Background heart canvas (below) */
+  #bg-canvas{position:absolute;left:0;top:0;width:100%;height:100%;z-index:1}
+  /* Game canvas (above background) */
+  #game-canvas{position:absolute;left:0;top:0;width:100%;height:100%;z-index:30}
 
-    #clickToStart {
-        position: fixed;
-        inset: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        color: var(--glow-color);
-        background: rgba(0, 0, 0, 0.8);
-        font-size: 26px;
-        z-index: 1000;
-        text-shadow: 0 0 15px var(--glow-color);
-        backdrop-filter: blur(8px);
-        cursor: pointer;
-    }
+  .ui{position:absolute;left:20px;top:20px;z-index:60}
+  .score{font-weight:700;font-size:20px;text-shadow:0 2px 10px rgba(0,0,0,0.6)}
+  .hint{margin-top:8px;color:#ffd6f0;font-size:13px}
+  .controls{position:absolute;right:20px;bottom:24px;z-index:60;display:flex;gap:10px}
+  .btn{background:linear-gradient(135deg,var(--accent1),var(--accent2));padding:12px;border-radius:12px;border:none;color:#fff;font-weight:700;box-shadow:0 8px 20px rgba(0,0,0,0.35);min-width:56px}
+  .big-btn{padding:14px 18px}
+  .overlay{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:92%;max-width:760px;background:rgba(255,255,255,0.03);border-radius:16px;padding:18px;z-index:80;text-align:center;backdrop-filter:blur(6px);box-shadow:0 10px 40px rgba(0,0,0,0.6)}
+  .title{font-size:20px;margin:0 0 6px;text-shadow:0 4px 18px rgba(255,100,180,0.12)}
+  .sub{color:#ffd6f0;margin:0 0 12px}
+  .start{display:inline-block;padding:10px 16px;border-radius:12px;background:linear-gradient(90deg,#ff99c6,#ff5fa2);color:#fff;font-weight:800;border:none;cursor:pointer}
+  .code-badge{margin-top:12px;padding:12px;border-radius:12px;background:linear-gradient(90deg,#fff,#ffd6f0);color:#111;font-weight:900;letter-spacing:2px;font-size:18px;display:inline-block}
+  .hidden{display:none}
+  .confetti{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:90;overflow:hidden}
+  .heart-glow{position:absolute;left:50%;transform:translateX(-50%);bottom:16px;padding:8px 12px;border-radius:999px;background:linear-gradient(90deg,#ff7bb1,#ff4fa1);box-shadow:0 8px 30px rgba(255,90,150,0.24);font-weight:800;z-index:95}
 
-    canvas {
-        display: block;
-        width: 100%;
-        height: 100%;
-    }
+  /* click-to-start overlay for autoplay permissions */
+  #clickToStart {position:fixed;top:0;left:0;width:100%;height:100%;z-index:200;background:rgba(0,0,0,0.9);color:hsl(270,85%,60%);display:flex;justify-content:center;align-items:center;font-family:Rubik,sans-serif;font-size:28px;cursor:pointer;text-align:center;backdrop-filter:blur(8px);text-shadow:0 0 15px hsl(270,95%,70%)}
 
-    #centerText {
-        position: absolute;
-        top: 45%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        text-align: center;
-        color: var(--glow-color);
-        text-shadow: 0 0 10px var(--main-hue-color);
-        font-size: 32px;
-        animation: glow 3s ease-in-out infinite alternate;
-    }
-
-    @keyframes glow {
-        from { text-shadow: 0 0 10px var(--glow-color), 0 0 30px var(--main-hue-color); }
-        to { text-shadow: 0 0 20px var(--main-hue-color), 0 0 60px var(--glow-color); }
-    }
-
-    /* Mobil kontrol butonları */
-    #controls {
-        position: fixed;
-        bottom: 15px;
-        width: 100%;
-        display: flex;
-        justify-content: space-around;
-        z-index: 20;
-    }
-
-    .btn {
-        background: rgba(255,255,255,0.1);
-        border: 2px solid var(--glow-color);
-        color: var(--glow-color);
-        font-size: 28px;
-        border-radius: 50%;
-        width: 60px;
-        height: 60px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        box-shadow: 0 0 10px var(--glow-color);
-        user-select: none;
-        transition: transform 0.1s;
-    }
-    .btn:active {
-        transform: scale(0.9);
-        background: rgba(255,255,255,0.15);
-    }
+  /* small responsiveness */
+  @media(min-width:700px){.overlay{max-width:820px;padding:28px}.title{font-size:26px}}
 </style>
 </head>
-
 <body>
-<audio id="backgroundMusic" loop>
-    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-</audio>
 
-<div id="clickToStart">💖 Başlamak için kalbe dokun Melek 💖</div>
+<div id="game-wrap">
+  <!-- Background heart animation canvas (from user's snippet) -->
+  <canvas id="bg-canvas"></canvas>
 
-<div id="centerText">💞 Melek iyi ki doğdun 💞</div>
-<canvas id="canvas"></canvas>
+  <!-- Game canvas (player and collectible hearts) -->
+  <canvas id="game-canvas"></canvas>
 
-<div id="controls">
-    <div class="btn">❤</div>
-    <div class="btn">💫</div>
-    <div class="btn">💖</div>
+  <div class="ui">
+    <div class="score">❤ Kalpler: <span id="score">0</span> / 10</div>
+    <div class="hint">Yön tuşları veya A/D ile hareket et. Mobilde sağ/sol/jump butonlarını kullan.</div>
+  </div>
+
+  <div class="controls" id="touch-controls" style="z-index:70">
+    <button class="btn" id="left">◀</button>
+    <button class="btn" id="right">▶</button>
+    <button class="btn big-btn" id="jump">⤴</button>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <h2 class="title">Melek'in Ultimate Doğum Günü Oyunu 🎮💖</h2>
+    <p class="sub">Galaksi + kalp arka planında kalpleri topla, özel hediye kodunu aç! 10 kalp topla — sürpriz seni bekliyor.</p>
+    <div>
+      <button class="start" id="startBtn">Oyunu Başlat</button>
+    </div>
+    <div style="margin-top:12px;font-size:13px;color:#ffd6f0">Mobil: sağ/sol/jump butonlarını kullanabilirsiniz.</div>
+  </div>
+
+  <div class="confetti" id="confetti"></div>
+  <div class="heart-glow hidden" id="heartGlow">💖 Kod Açıldı!</div>
+
+  <audio id="bgMusic" loop preload="auto">
+    <source src="https://cdn.pixabay.com/download/audio/2021/11/08/audio_6b3b8a70d3.mp3?filename=calm-lounge-loop-by-virsyn-12335.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="collectSound" preload="auto">
+    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_bf0b2c8d6b.mp3?filename=collect-coin-6466.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="winSound" preload="auto">
+    <source src="https://cdn.pixabay.com/download/audio/2022/02/04/audio_3be8b6b3ce.mp3?filename=game-win-6086.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- click-to-start for autoplay permission -->
+  <div id="clickToStart">Başlamak ve müziği çalmak için herhangi bir yere tıkla</div>
 </div>
 
 <script>
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d", { alpha: true });
-let width, height;
+/* ===========================
+   Background Heart Animation
+   (integrated from user's snippet)
+   =========================== */
+(function(){
+  const bgCanvas = document.getElementById('bg-canvas');
+  const ctx = bgCanvas.getContext('2d', { alpha: true });
+  let W = bgCanvas.width = window.innerWidth;
+  let H = bgCanvas.height = window.innerHeight;
+  window.addEventListener('resize', ()=>{W=bgCanvas.width=window.innerWidth;H=bgCanvas.height=window.innerHeight; genHeartTargets();});
 
-function resize() {
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
-}
-window.addEventListener("resize", resize);
-resize();
+  let pulseTime = 0;
+  let currentHue = 270;
+  const saturation = 85;
+  const lightness = 60;
+  const BASE_SCALE_FACTOR = 38;
 
-let hue = 320, t = 0;
-function heart(t) {
-    return {
-        x: 16 * Math.sin(t) ** 3,
-        y: 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t)
-    };
-}
+  function getHslColor(h, s, l, a = 1) { return `hsla(${h}, ${s}%, ${l}%, ${a})`; }
 
-function drawHeart() {
-    t += 0.03;
-    hue = (hue + 0.3) % 360;
-    ctx.clearRect(0, 0, width, height);
-    const scale = Math.min(width, height) / 40;
-    ctx.beginPath();
-    for (let i = 0; i < Math.PI * 2; i += 0.05) {
-        const p = heart(i);
-        const x = width/2 + p.x * scale;
-        const y = height/2 - p.y * scale;
-        ctx.lineTo(x, y);
+  function heartFunction(t) {
+    const x = 16 * Math.pow(Math.sin(t), 3);
+    const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+    return { x, y };
+  }
+
+  class Comet {
+    constructor(target) {
+      const side = Math.floor(Math.random() * 4);
+      if (side === 0) { this.x = Math.random() * W; this.y = -20; }
+      else if (side === 1) { this.x = W + 20; this.y = Math.random() * H; }
+      else if (side === 2) { this.x = Math.random() * W; this.y = H + 20; }
+      else { this.x = -20; this.y = Math.random() * H; }
+      this.targetX = target.x; this.targetY = target.y;
+      this.size = 2 + Math.random() * 2;
+      this.speed = 3 + Math.random() * 2;
+      const dx = this.targetX - this.x, dy = this.targetY - this.y;
+      const d = Math.hypot(dx, dy) || 1;
+      this.vx = dx / d * this.speed; this.vy = dy / d * this.speed;
+      this.arrived = false;
+      this.trail = [];
+      this.maxTrail = 20 + Math.random() * 20;
+      this.alpha = 1;
+      this.damping = 0.08;
     }
-    ctx.closePath();
-    ctx.shadowBlur = 20;
-    ctx.shadowColor = `hsl(${hue},100%,70%)`;
-    ctx.strokeStyle = `hsl(${hue},100%,70%)`;
-    ctx.lineWidth = 3;
-    ctx.stroke();
-    requestAnimationFrame(drawHeart);
-}
-
-document.getElementById("clickToStart").addEventListener("click", () => {
-    document.getElementById("backgroundMusic").play();
-    document.getElementById("clickToStart").style.display = "none";
-    drawHeart();
-});
-
-window.addEventListener("deviceorientation", e => {
-    if (Math.abs(e.gamma) > 5 || Math.abs(e.beta) > 5) {
-        const emoji = document.createElement("div");
-        emoji.textContent = "💞 MELEK 💞";
-        emoji.style.position = "absolute";
-        emoji.style.left = Math.random()*100 + "%";
-        emoji.style.top = Math.random()*100 + "%";
-        emoji.style.color = `hsl(${hue},80%,70%)`;
-        emoji.style.textShadow = "0 0 8px pink";
-        emoji.style.transition = "all 2s ease";
-        document.body.appendChild(emoji);
-        setTimeout(() => emoji.style.opacity = 0, 100);
-        setTimeout(() => emoji.remove(), 2000);
+    update() {
+      const dx = this.targetX - this.x;
+      const dy = this.targetY - this.y;
+      if (!this.arrived) {
+        this.x += this.vx; this.y += this.vy;
+        if (Math.hypot(dx, dy) < this.speed) { this.arrived = true; this.x = this.targetX; this.y = this.targetY; this.trail = []; }
+      } else {
+        this.vx = dx * this.damping; this.vy = dy * this.damping; this.x += this.vx; this.y += this.vy;
+      }
+      this.trail.push({ x: this.x, y: this.y });
+      if (this.trail.length > this.maxTrail) this.trail.shift();
     }
-});
+    draw(ctx, hue) {
+      ctx.save();
+      const cometColor = getHslColor(hue, saturation, lightness);
+      const cometShadowColor = getHslColor(hue, 95, 70);
+      for (let i = 0; i < this.trail.length; i++) {
+        const t = this.trail[i];
+        ctx.globalAlpha = (i / this.trail.length) * 0.4;
+        ctx.fillStyle = cometColor;
+        ctx.beginPath(); ctx.arc(t.x, t.y, this.size * (i / this.trail.length), 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.globalAlpha = this.alpha;
+      ctx.fillStyle = cometColor; ctx.shadowBlur = 14; ctx.shadowColor = cometShadowColor; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  let cometCount = Math.min(250, Math.floor(Math.max(60, (W+H)/8)));
+  let heartTargets = [];
+  function genHeartTargets() {
+    heartTargets = [];
+    const pulseScale = 1 + Math.sin(pulseTime * 0.03) * 0.05;
+    const scale = Math.min(W, H) / (BASE_SCALE_FACTOR / pulseScale);
+    for (let i = 0; i < cometCount; i++) {
+      const t = (Math.PI * 2 / cometCount) * i;
+      const p = heartFunction(t);
+      heartTargets.push({ x: W / 2 + p.x * scale, y: H / 2 - p.y * scale });
+    }
+  }
+  genHeartTargets();
+
+  let comets = [];
+  function spawnComets() {
+    for (let i = 0; i < heartTargets.length; i++) comets.push(new Comet(heartTargets[i]));
+  }
+  spawnComets();
+
+  function animate() {
+    pulseTime++; currentHue = (currentHue + 0.12) % 360; genHeartTargets();
+    ctx.clearRect(0,0,W,H);
+    // subtle background glow
+    const grad = ctx.createRadialGradient(W/2, H/2, Math.min(W,H)/10, W/2, H/2, Math.max(W,H));
+    grad.addColorStop(0, getHslColor(currentHue, 40, 6, 0.08));
+    grad.addColorStop(1, getHslColor((currentHue+40)%360, 40, 3, 0.04));
+    ctx.fillStyle = grad; ctx.fillRect(0,0,W,H);
+
+    for (let i = comets.length - 1; i >= 0; i--) {
+      if (heartTargets[i]) { comets[i].targetX = heartTargets[i].x; comets[i].targetY = heartTargets[i].y; }
+      comets[i].update(); comets[i].draw(ctx, currentHue);
+    }
+    requestAnimationFrame(animate);
+  }
+  animate();
+
+  // keep background audio permission flow
+  const clickToStartDiv = document.getElementById('clickToStart');
+  const bgMusic = document.getElementById('bgMusic');
+  clickToStartDiv.addEventListener('click', ()=>{
+    bgMusic.play().catch(()=>{});
+    clickToStartDiv.style.display='none';
+  });
+})();
+
+/* ===========================
+   Game canvas + logic
+   (merged from earlier game code)
+   =========================== */
+(function(){
+  const canvas = document.getElementById('game-canvas');
+  const ctx = canvas.getContext('2d');
+  let W = canvas.width = window.innerWidth; let H = canvas.height = window.innerHeight;
+  window.addEventListener('resize', ()=>{W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight});
+
+  // Game state
+  let score = 0; const heartsToWin = 10; let running = false; let won = false;
+
+  // Player
+  const player = {x:W/2, y:H-140, w:48, h:64, vx:0, vy:0, speed:6, grounded:false, color:'#ffd6f0'};
+  const gravity = 0.6;
+
+  // Stars (for extra depth over background)
+  const stars = [];
+  for(let i=0;i<120;i++) stars.push({x:Math.random()*W, y:Math.random()*H, r:Math.random()*1.6+0.2, s:Math.random()*1.5+0.5});
+
+  // collectible hearts
+  const hearts = [];
+  function spawnHeart(){ const size = 28 + Math.random()*18; hearts.push({x:Math.random()*(W-80)+40, y:-50, vy:1.2+Math.random()*1.6, size, wob:Math.random()*0.05}); }
+
+  // confetti helper
+  function makeConfetti(){ const conf = document.getElementById('confetti'); for(let i=0;i<60;i++){ const el=document.createElement('div'); el.textContent = ['✨','🎉','🌟','💫','🌸'][Math.floor(Math.random()*5)]; el.style.left = (Math.random()*100)+'%'; el.style.top = (Math.random()*30)+'%'; el.style.fontSize = (12+Math.random()*20)+'px'; conf.appendChild(el); setTimeout(()=>{ el.style.transition = 'transform 2200ms ease-out, opacity 1600ms'; el.style.transform = 'translateY('+ (80+Math.random()*80) +'vh) rotate('+ (Math.random()*720-360) +'deg)'; el.style.opacity = 1; }, 50+Math.random()*300); setTimeout(()=>el.remove(),2700+Math.random()*300);} }
+
+  // audio
+  const bgm = document.getElementById('bgMusic'); const collectSound = document.getElementById('collectSound'); const winSound = document.getElementById('winSound');
+
+  // input
+  const keys = {};
+  window.addEventListener('keydown', e=>{keys[e.key.toLowerCase()]=true});
+  window.addEventListener('keyup', e=>{keys[e.key.toLowerCase()]=false});
+
+  // touch buttons
+  document.getElementById('left').addEventListener('touchstart', e=>{e.preventDefault();keys['arrowleft']=true;keys['a']=true});
+  document.getElementById('left').addEventListener('touchend', e=>{e.preventDefault();keys['arrowleft']=false;keys['a']=false});
+  document.getElementById('right').addEventListener('touchstart', e=>{e.preventDefault();keys['arrowright']=true;keys['d']=true});
+  document.getElementById('right').addEventListener('touchend', e=>{e.preventDefault();keys['arrowright']=false;keys['d']=false});
+  document.getElementById('jump').addEventListener('touchstart', e=>{e.preventDefault();keys[' ']=true;keys['w']=true;setTimeout(()=>{keys[' ']=false;keys['w']=false},150)});
+
+  // start button
+  const overlay = document.getElementById('overlay'); const startBtn = document.getElementById('startBtn'); const scoreEl = document.getElementById('score'); const heartGlow = document.getElementById('heartGlow');
+  startBtn.addEventListener('click', ()=>{ overlay.classList.add('hidden'); running=true; bgm.volume=0.35; bgm.play().catch(()=>{}); for(let i=0;i<6;i++) setTimeout(spawnHeart, i*700); });
+
+  function hitTest(a,b){ return !(a.x+a.w < b.x || a.x > b.x+b.size || a.y+a.h < b.y || a.y > b.y+b.size); }
+  function roundRect(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+
+  function draw(){ ctx.clearRect(0,0,W,H);
+    // subtle overlay to separate from bg
+    const g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'rgba(20,0,40,0.12)'); g.addColorStop(1,'rgba(5,0,15,0.20)'); ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+    // stars
+    for(let s of stars){ ctx.globalAlpha = 0.6 + Math.sin(Date.now()/1000*s.s)*0.4; ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(s.x + (Math.sin(Date.now()/800+s.s)*6), s.y, s.r, 0, Math.PI*2); ctx.fill(); }
+    ctx.globalAlpha = 1;
+    // ground
+    ctx.fillStyle = 'rgba(255,255,255,0.03)'; ctx.fillRect(0,H-110,W,110);
+    // player shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.beginPath(); ctx.ellipse(player.x+player.w/2, H-80, 28, 8, 0, 0, Math.PI*2); ctx.fill();
+    // player
+    roundRect(player.x, player.y, player.w, player.h, 10); ctx.fillStyle = player.color; ctx.fill(); ctx.fillStyle = '#5b0033'; ctx.beginPath(); ctx.arc(player.x+14, player.y+24, 3,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(player.x+player.w-14, player.y+24, 3,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(player.x+player.w/2, player.y+36, 8, 0, Math.PI); ctx.strokeStyle='rgba(0,0,0,0.25)'; ctx.lineWidth=2; ctx.stroke();
+    // hearts
+    for(let i=hearts.length-1;i>=0;i--){ const h = hearts[i]; h.y += h.vy; h.vy += 0.02; h.x += Math.sin(Date.now()/600 + i)*0.6; ctx.font = h.size+'px serif'; ctx.fillText('💖', h.x, h.y + Math.sin(Date.now()/200 + i)*4); if(h.y > H + 80) hearts.splice(i,1); if(hitTest(player, h)){ hearts.splice(i,1); score++; scoreEl.textContent = score; collectSound.currentTime = 0; collectSound.play().catch(()=>{}); popAt(h.x, h.y); if(score >= heartsToWin) onWin(); } }
+    if(Math.random() < 0.02 && hearts.length < 7) spawnHeart(); ctx.fillStyle = 'rgba(255,220,255,0.06)'; ctx.font = '14px serif'; ctx.fillText('Toplamak için kalplere dokun →', 18, H-86);
+  }
+
+  function popAt(x,y){ const root = document.getElementById('game-wrap'); const el = document.createElement('div'); el.textContent='✨'; el.style.position='absolute'; el.style.left = (x)+'px'; el.style.top = (y)+'px'; el.style.fontSize = '20px'; el.style.opacity = '0'; el.style.transform = 'translateY(0)'; el.style.transition = 'all 700ms ease-out'; root.appendChild(el); requestAnimationFrame(()=>{el.style.opacity=1;el.style.transform='translateY(-30px) scale(1.2)'}); setTimeout(()=>el.remove(),800); }
+
+  function onWin(){ if(won) return; won=true; running=false; bgm.pause(); winSound.play().catch(()=>{}); makeConfetti(); showCodeReveal('MELEK2025', 'İyi ki doğdun Melek!'); }
+
+  function showCodeReveal(code, message){ const wrap = document.createElement('div'); wrap.style.position='absolute'; wrap.style.left='50%'; wrap.style.top='50%'; wrap.style.transform='translate(-50%,-50%)'; wrap.style.zIndex=200; wrap.style.textAlign='center'; wrap.style.background='linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03))'; wrap.style.padding='26px'; wrap.style.borderRadius='16px'; wrap.style.backdropFilter='blur(5px)'; wrap.style.boxShadow='0 18px 50px rgba(0,0,0,0.6)'; const h=document.createElement('h3'); h.textContent=message; h.style.margin='0 0 8px'; h.style.fontSize='20px'; h.style.color='#ffd6f0'; wrap.appendChild(h); const p=document.createElement('div'); p.className='code-badge'; p.textContent=''; wrap.appendChild(p); document.getElementById('game-wrap').appendChild(wrap); let i=0; const full=code.split(''); const revealInterval=setInterval(()=>{ p.textContent += full[i]; i++; if(i>=full.length){ clearInterval(revealInterval); document.getElementById('heartGlow').classList.remove('hidden'); for(let k=0;k<30;k++) setTimeout(()=>spawnHeart(), k*80); makeConfetti(); } }, 260); }
+
+  // physics & movement
+  function update(){ if(!running) return; let moveLeft = keys['arrowleft'] || keys['a']; let moveRight = keys['arrowright'] || keys['d']; if(moveLeft) player.vx = -player.speed; else if(moveRight) player.vx = player.speed; else player.vx = 0; if((keys[' '] || keys['w'] || keys['arrowup']) && player.grounded){ player.vy = -12; player.grounded=false } player.x += player.vx; player.y += player.vy; player.vy += gravity; if(player.y + player.h >= H-110){ player.y = H-110 - player.h; player.vy=0; player.grounded=true } if(player.x < 12) player.x = 12; if(player.x + player.w > W-12) player.x = W-12 - player.w; }
+
+  // loop
+  function loop(){ update(); draw(); requestAnimationFrame(loop); }
+  loop();
+
+  setInterval(()=>{ if(!running && Math.random()<0.2) spawnHeart(); }, 900);
+  window.addEventListener('keydown', (e)=>{ if(!running && (e.key===' ' || e.key==='ArrowUp')){ startBtn.click(); } });
+
+})();
 </script>
 </body>
 </html>
