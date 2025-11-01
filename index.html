@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>💞 Melek İyi Ki Doğdun 💞</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --main-color: 320;
+        --main-hue-color: hsl(var(--main-color), 85%, 60%);
+        --glow-color: hsl(var(--main-color), 95%, 75%);
+    }
+
+    html, body {
+        margin: 0;
+        overflow: hidden;
+        background: radial-gradient(circle at center, #160016 30%, #000 100%);
+        height: 100vh;
+        font-family: 'Rubik', sans-serif;
+        touch-action: none;
+    }
+
+    #clickToStart {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        color: var(--glow-color);
+        background: rgba(0, 0, 0, 0.8);
+        font-size: 26px;
+        z-index: 1000;
+        text-shadow: 0 0 15px var(--glow-color);
+        backdrop-filter: blur(8px);
+        cursor: pointer;
+    }
+
+    canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+
+    #centerText {
+        position: absolute;
+        top: 45%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: var(--glow-color);
+        text-shadow: 0 0 10px var(--main-hue-color);
+        font-size: 32px;
+        animation: glow 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+        from { text-shadow: 0 0 10px var(--glow-color), 0 0 30px var(--main-hue-color); }
+        to { text-shadow: 0 0 20px var(--main-hue-color), 0 0 60px var(--glow-color); }
+    }
+
+    /* Mobil kontrol butonları */
+    #controls {
+        position: fixed;
+        bottom: 15px;
+        width: 100%;
+        display: flex;
+        justify-content: space-around;
+        z-index: 20;
+    }
+
+    .btn {
+        background: rgba(255,255,255,0.1);
+        border: 2px solid var(--glow-color);
+        color: var(--glow-color);
+        font-size: 28px;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 0 10px var(--glow-color);
+        user-select: none;
+        transition: transform 0.1s;
+    }
+    .btn:active {
+        transform: scale(0.9);
+        background: rgba(255,255,255,0.15);
+    }
+</style>
+</head>
+
+<body>
+<audio id="backgroundMusic" loop>
+    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+</audio>
+
+<div id="clickToStart">💖 Başlamak için kalbe dokun Melek 💖</div>
+
+<div id="centerText">💞 Melek iyi ki doğdun 💞</div>
+<canvas id="canvas"></canvas>
+
+<div id="controls">
+    <div class="btn">❤</div>
+    <div class="btn">💫</div>
+    <div class="btn">💖</div>
+</div>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d", { alpha: true });
+let width, height;
+
+function resize() {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resize);
+resize();
+
+let hue = 320, t = 0;
+function heart(t) {
+    return {
+        x: 16 * Math.sin(t) ** 3,
+        y: 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t)
+    };
+}
+
+function drawHeart() {
+    t += 0.03;
+    hue = (hue + 0.3) % 360;
+    ctx.clearRect(0, 0, width, height);
+    const scale = Math.min(width, height) / 40;
+    ctx.beginPath();
+    for (let i = 0; i < Math.PI * 2; i += 0.05) {
+        const p = heart(i);
+        const x = width/2 + p.x * scale;
+        const y = height/2 - p.y * scale;
+        ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = `hsl(${hue},100%,70%)`;
+    ctx.strokeStyle = `hsl(${hue},100%,70%)`;
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    requestAnimationFrame(drawHeart);
+}
+
+document.getElementById("clickToStart").addEventListener("click", () => {
+    document.getElementById("backgroundMusic").play();
+    document.getElementById("clickToStart").style.display = "none";
+    drawHeart();
+});
+
+window.addEventListener("deviceorientation", e => {
+    if (Math.abs(e.gamma) > 5 || Math.abs(e.beta) > 5) {
+        const emoji = document.createElement("div");
+        emoji.textContent = "💞 MELEK 💞";
+        emoji.style.position = "absolute";
+        emoji.style.left = Math.random()*100 + "%";
+        emoji.style.top = Math.random()*100 + "%";
+        emoji.style.color = `hsl(${hue},80%,70%)`;
+        emoji.style.textShadow = "0 0 8px pink";
+        emoji.style.transition = "all 2s ease";
+        document.body.appendChild(emoji);
+        setTimeout(() => emoji.style.opacity = 0, 100);
+        setTimeout(() => emoji.remove(), 2000);
+    }
+});
+</script>
+</body>
+</html>
